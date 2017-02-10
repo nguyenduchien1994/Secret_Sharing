@@ -1,10 +1,12 @@
 from __future__ import division
 import sys
-sys.path.append("/home/heinous/Desktop/Research/SecretSharing/Secret_Sharing/Finite-Field")
-sys.path.append("/home/heinous/Desktop/Research/SecretSharing/Secret_Sharing/reedsolomon")
+
+sys.path.append("/ad/eng/users/h/e/heinous/Desktop/Research/Secret_Sharing/Finite-Field")
+#sys.path.append("/home/heinous/Desktop/Research/SecretSharing/Secret_Sharing/Finite-Field")
+#sys.path.append("/home/heinous/Desktop/Research/SecretSharing/Secret_Sharing/reedsolomon")
 
 import ffield
-import reedsolo
+#import reedsolo
 import random
 
 test_cases = 10000
@@ -98,7 +100,7 @@ def secretRecon(holders,f):
 
         return 0
 
-def tester(f):
+def test_M1_M2(f):
 
     F = ffield.FField(f)
     error = int("11111111000000001111111100000000",2)
@@ -117,8 +119,29 @@ def tester(f):
 
     print "Miss Rate = " + str(miss*100/test_cases) + "%"
 
-#tester(8)
-shares = shareDistribute("11111111000000001111111100000000",32,10)
-holders = {x: shares[x] for x in ('{0:032b}'.format(4),'{0:032b}'.format(2),'{0:032b}'.format(3))}
-print secretRecon(holders,32)
+def test_full():
+
+    int_S = random.randint(0,2**24-1)
+    bin_S = '{0:024b}'.format(int_S)
+
+    print "###### The secret is " + bin_S + " ######"
+
+    E = robustEncoder(bin_S,8)
+
+    print "###### The encrypted-secret is " + E + " ######"
+
+    shares = shareDistribute(E,32,10)
+    chosen = dict((key,value) for key, value in shares.iteritems() if key in ('{0:032b}'.format(1),'{0:032b}'.format(2),'{0:032b}'.format(3))) # Python 2.6
+    #chosen = {x: shares[x] for x in ('{0:032b}'.format(4),'{0:032b}'.format(2),'{0:032b}'.format(3))} # Python 2.7
+    E_con = secretRecon(chosen,32)
+
+    print "###### Reconstructed secret is " + E_con + " ######"
+
+    if robustDecoder(E_con,8):
+        print "###### Correct! ######"
+    else:
+        print "###### Incorrect! ######"
+
+#test_M1_M2(8)
+test_full()
 
