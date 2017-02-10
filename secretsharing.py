@@ -6,7 +6,7 @@ sys.path.append("/home/heinous/Desktop/Research/SecretSharing/Secret_Sharing/Fin
 sys.path.append("/home/heinous/Desktop/Research/SecretSharing/Secret_Sharing/reedsolomon")
 
 import ffield
-#import reedsolo
+import reedsolo
 import random
 
 test_cases = 10000
@@ -119,7 +119,7 @@ def test_M1_M2(f):
 
     print "Miss Rate = " + str(miss*100/test_cases) + "%"
 
-def test_full():
+def test_robust():
 
     int_S = random.randint(0,2**24-1)
     bin_S = '{0:024b}'.format(int_S)
@@ -143,5 +143,5 @@ def test_full():
         print "###### Incorrect! ######"
 
 #test_M1_M2(8)
-test_full()
+test_robust()
 
