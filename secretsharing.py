@@ -56,11 +56,47 @@ def robustDecoder(E,f):
     else:
         return False
 
-def shareDistribute():
-    return 0
+def shareDistribute(E,f,n):
 
-def secretRecon():
-    return 0
+    F = ffield.FField(f)
+    a0 = int("10101010101010101010101010101010",2)
+    a1 = int("01010101010101010101010101010101",2)
+    shares = {}
+
+    for x in range(1,n+1):
+        D = F.Add(F.Add(F.Multiply(F.Multiply(x,x),int(E,2)),F.Multiply(a1,x)),a0)
+        D = '{0:032b}'.format(D)
+        shares['{0:032b}'.format(x)] = D
+
+    return shares
+
+def secretRecon(holders,f):
+
+    F = ffield.FField(f)
+
+    if len(holders) == 2:
+        denom = F.Add(int(holders.keys()[0],2),int(holders.keys()[1],2))
+        nom = F.Add(int(holders.values()[0],2),int(holders.values()[1],2))
+        E = F.Multiply(nom,F.Inverse(denom))
+
+        return '{0:032b}'.format(E)
+
+    elif len(holders) == 3:
+        E = 0
+        for x in holders.keys():
+            D = holders[x]
+            nom = int(D,2)
+            denom = 1
+            for y in holders.keys():
+                if y != x:
+                    denom = F.Multiply(denom,F.Add(int(x,2),int(y,2)))
+            E = F.Add(E,F.Multiply(nom,F.Inverse(denom)))
+
+        return '{0:032b}'.format(E)
+
+    else:
+
+        return 0
 
 def tester(f):
 
@@ -81,5 +117,8 @@ def tester(f):
 
     print "Miss Rate = " + str(miss*100/test_cases) + "%"
 
-tester(8)
+#tester(8)
+shares = shareDistribute("11111111000000001111111100000000",32,10)
+holders = {x: shares[x] for x in ('{0:032b}'.format(4),'{0:032b}'.format(2),'{0:032b}'.format(3))}
+print secretRecon(holders,32)
 
