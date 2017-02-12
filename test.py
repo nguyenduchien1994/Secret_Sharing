@@ -13,6 +13,7 @@ from Robust import Robust
 from AMD import AMD
 from ShareDistribute import ShareDistribute
 from SecretRecon import SecretRecon
+from GroupTesting import GroupTesting
 
 def test_M1_M2(f):
 
@@ -50,7 +51,7 @@ def test_robust():
     print "###### The encrypted secret is " + E + " ######"
 
     sd = ShareDistribute(32)
-    shares = sd.distribute(E,10)
+    shares = sd.distribute(E,7)
     chosen = dict((key,value) for key, value in shares.iteritems() if key in ('{0:032b}'.format(1),'{0:032b}'.format(2),'{0:032b}'.format(3))) # Python 2.6
     #chosen = {x: shares[x] for x in ('{0:032b}'.format(4),'{0:032b}'.format(2),'{0:032b}'.format(3))} # Python 2.7
     sr = SecretRecon(32)
@@ -92,6 +93,76 @@ def test_amd():
     else:
         print "###### Incorrect! ######"
 
-test_M1_M2(8)
-test_robust()
-test_amd()
+def test_group_testing():
+
+    n = 7
+    k = 3
+    t = n-k
+
+    print "****** Group Testing Test ******"
+    int_S = random.randint(0,2**24-1)
+    bin_S = '{0:024b}'.format(int_S)
+
+    print "###### The secret is " + bin_S + " ######"
+
+    r = Robust(8)
+    E = r.encode(bin_S)
+
+    print "###### The encrypted secret is " + E + " ######"
+
+    sd = ShareDistribute(32)
+    shares = sd.distribute(E,n)
+
+    cheaters = []
+
+    for count in range(0,t):
+        cheater = random.randint(1,n)
+        while cheater in cheaters:
+            cheater = random.randint(1,n)
+        cheaters.append(cheater)
+        cheater = '{0:032b}'.format(cheater)
+        int_cheat_code = random.randint(0,2**32-1)
+        bin_cheat_code = '{0:032b}'.format(int_cheat_code)
+        shares[cheater] = bin_cheat_code
+
+    print "###### The cheaters are " + str(cheaters) + " ######"
+
+    chosen = dict((key,value) for key, value in shares.iteritems() if key in ('{0:032b}'.format(1),'{0:032b}'.format(2),'{0:032b}'.format(3))) # Python 2.6
+    #chosen = {x: shares[x] for x in ('{0:032b}'.format(4),'{0:032b}'.format(2),'{0:032b}'.format(3))} # Python 2.7
+    sr = SecretRecon(32)
+    E_con = sr.recon_3(chosen)
+
+    print "###### Reconstructed secret is " + E_con + " ######"
+
+    if r.decode(E_con):
+        print "###### Correct! ######"
+    else:
+        print "###### Incorrect! ######"
+
+    g = GroupTesting(n,k)
+    matrix = g.genMatrix()
+
+    pattern = []
+
+    for combination in matrix:
+        chosen_idx = []
+        chosen = {}
+        for idx,holder in enumerate(combination):
+            if holder == 1:
+                chosen_idx.append(idx)
+        for idx in chosen_idx:
+            chosen['{0:032b}'.format(idx+1)] = shares['{0:032b}'.format(idx+1)]
+
+        E_con = sr.recon_3(chosen)
+
+        if r.decode(E_con):
+            pattern.append(0)
+        else:
+            pattern.append(1)
+
+    print pattern
+
+#test_M1_M2(8)
+#test_robust()
+#test_amd()
+test_group_testing()
