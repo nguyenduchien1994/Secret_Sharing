@@ -142,7 +142,7 @@ def test_group_testing():
     g = GroupTesting(n,k)
     matrix = g.genMatrix()
 
-    pattern = []
+    syndrome = []
 
     for combination in matrix:
         chosen_idx = []
@@ -156,12 +156,28 @@ def test_group_testing():
         E_con = sr.recon_3(chosen)
 
         if r.decode(E_con):
-            pattern.append(0)
-            #print combination
+            syndrome.append(0)
         else:
-            pattern.append(1)
+            syndrome.append(1)
 
-    print pattern
+    print "###### Syndrome: " + str(syndrome) + " ######"
+
+    t_matrix = g.transpose(matrix)
+    indicator = [0]*len(t_matrix)
+
+    for i in range(0,len(t_matrix)):
+        for j in range(0,len(t_matrix[i])):
+            if t_matrix[i][j] & syndrome[j] == 1:
+                indicator[i] += 1
+
+    non_cheaters = []
+    max_fails = g.nCr(n-1,k-1)
+
+    for k in range(0,len(indicator)):
+        if indicator[k] < max_fails:
+            non_cheaters.append(k+1)
+
+    print "@@@@@@ The non-cheaters are " + str(non_cheaters) + " @@@@@@"
 
 #test_M1_M2(8)
 #test_robust()

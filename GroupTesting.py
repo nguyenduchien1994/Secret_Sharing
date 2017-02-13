@@ -1,5 +1,6 @@
 import sys
 import itertools
+import operator as op
 
 class GroupTesting():
 
@@ -23,4 +24,11 @@ class GroupTesting():
 
         return t_matrix
 
+    def nCr(self,n,r):
+
+        r = min(r, n-r)
+        if r == 0: return 1
+        numer = reduce(op.mul, xrange(n, n-r, -1))
+        denom = reduce(op.mul, xrange(1, r+1))
+        return numer//denom
 
