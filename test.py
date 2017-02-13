@@ -157,6 +157,7 @@ def test_group_testing():
 
         if r.decode(E_con):
             pattern.append(0)
+            #print combination
         else:
             pattern.append(1)
 
