@@ -11,6 +11,7 @@ import reedsolo
 import random
 from Robust import Robust
 from AMD import AMD
+from AMD_extended import AMD_extended
 from ShareDistribute import ShareDistribute
 from SecretRecon import SecretRecon
 from GroupTesting import GroupTesting
@@ -32,6 +33,30 @@ def test_M1_M2(f):
         bin_tilda_E = '{0:032b}'.format(tilda_E)
 
         if (r.decode(bin_tilda_E)):
+            miss += 1
+
+    print "Miss Rate = " + str(miss*100/test_cases) + "%"
+
+def test_extended_AMD(f):
+
+    print "###### Test Extended AMD ######"
+
+    F = ffield.FField(f)
+    #error = int("11111111000000001111111100000000",2)
+    error = random.randint(0,2**40-1)
+    test_cases = 100000
+    miss = 0
+
+    for i in range(0,test_cases):
+        int_S = random.randint(0,2**24-1)
+        bin_S = '{0:024b}'.format(int_S)
+        a = AMD_extended(f)
+        E = a.encode(bin_S)
+        int_E = int(E,2)
+        tilda_E = F.Add(int_E,error)
+        bin_tilda_E = '{0:040b}'.format(tilda_E)
+
+        if (a.decode(bin_tilda_E)):
             miss += 1
 
     print "Miss Rate = " + str(miss*100/test_cases) + "%"
@@ -159,7 +184,8 @@ def test_group_testing():
 
         E_con = sr.recon_3(chosen)
 
-        if r.decode(E_con):
+        #if r.decode(E_con):
+        if a.decode(E_con):
             syndrome.append(0)
         else:
             syndrome.append(1)
@@ -186,4 +212,5 @@ def test_group_testing():
 #test_M1_M2(8)
 #test_robust()
 #test_amd()
-test_group_testing()
+test_extended_AMD(8)
+#test_group_testing()
