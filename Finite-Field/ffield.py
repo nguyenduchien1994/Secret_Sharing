@@ -23,7 +23,7 @@ detailed information on various topics:
 
   testing_doc       Describes some tests to make sure the code is working
                     as well as some of the built in testing routines.
-  
+
 """
 
 import string, random, os, os.path, cPickle
@@ -75,8 +75,11 @@ gPrimitivePolysCondensed = {
     38 : (38, 14, 10, 9, 8, 5, 2, 1, 0),
     39 : (39, 15, 12, 11, 10, 9, 7, 6, 5, 2 , 0),
     40 : (40, 23, 21, 18, 16, 15, 13, 12, 8, 5, 3, 1, 0),
-    97 : (97,6,0),
-    100 : (100,15,0)
+    48 : (48, 9, 7, 4, 0),
+    64 : (64, 4, 3, 1, 0),
+    97 : (97, 6, 0),
+    100 : (100, 15, 0),
+    128 : (128, 7, 2, 1, 0)
     }
 
 for n in gPrimitivePolysCondensed.keys():
@@ -88,7 +91,7 @@ for n in gPrimitivePolysCondensed.keys():
     for index in gPrimitivePolysCondensed[n]:
         gPrimitivePolys[n][index] = unity
     gPrimitivePolys[n].reverse()
-                
+
 
 class FField:
     """
@@ -112,15 +115,15 @@ class FField:
     TestFullDivision
     TestInverse
 
-    Most of these methods take integers or longs representing field 
-    elements as arguments and return integers representing the desired 
+    Most of these methods take integers or longs representing field
+    elements as arguments and return integers representing the desired
     field elements as output.  See ffield.fields_doc for an explanation
     of the integer representation of field elements.
 
     Example of how to use the FField class:
-    
+
 >>> import ffield
->>> F = ffield.FField(5) # create the field GF(2^5) 
+>>> F = ffield.FField(5) # create the field GF(2^5)
 >>> a = 7 # field elements are denoted as integers from 0 to 2^5-1
 >>> b = 15
 >>> F.ShowPolynomial(a) # show the polynomial representation of a
@@ -142,7 +145,7 @@ class FField:
 
     See documentation on the appropriate method for further details.
     """
-    
+
     def __init__(self,n,gen=0,useLUT=-1):
         """
         This method constructs the field GF(2^p).  It takes one
@@ -162,8 +165,8 @@ class FField:
         Note that you can look at the generator for the field object
         F by looking at F.generator.
         """
-        
-        self.n = n 
+
+        self.n = n
         if (gen):
             self.generator = gen
         else:
@@ -172,19 +175,19 @@ class FField:
 
         if (useLUT == 1 or (useLUT == -1 and self.n < 10)): # use lookup table
             self.unity = 1
-            self.Inverse = self.DoInverseForSmallField            
+            self.Inverse = self.DoInverseForSmallField
             self.PrepareLUT()
             self.Multiply = self.LUTMultiply
             self.Divide = self.LUTDivide
-            self.Inverse = lambda x: self.LUTDivide(1,x)            
+            self.Inverse = lambda x: self.LUTDivide(1,x)
         elif (self.n < 15):
             self.unity = 1
-            self.Inverse = self.DoInverseForSmallField            
+            self.Inverse = self.DoInverseForSmallField
             self.Multiply = self.DoMultiply
             self.Divide = self.DoDivide
         else: # Need to use longs for larger fields
             self.unity = long(1)
-            self.Inverse = self.DoInverseForBigField            
+            self.Inverse = self.DoInverseForBigField
             self.Multiply = lambda a,b: self.DoMultiply(long(a),long(b))
             self.Divide = lambda a,b: self.DoDivide(long(a),long(b))
 
@@ -212,18 +215,18 @@ class FField:
             cPickle.dump(self.lut,fd)
             fd.close()
 
-            
+
     def LUTMultiply(self,i,j):
         return self.lut.mulLUT[i][j]
 
     def LUTDivide(self,i,j):
         return self.lut.divLUT[i][j]
-        
+
     def Add(self,x,y):
         """
         Adds two field elements and returns the result.
         """
-        
+
         return x ^ y
 
     def Subtract(self,x,y):
@@ -245,7 +248,7 @@ class FField:
         m = self.MultiplyWithoutReducing(f,v)
         return self.FullDivision(m,self.generator,
                                  self.FindDegree(m),self.n)[1]
-            
+
     def DoInverseForSmallField(self,f):
         """
         Computes the multiplicative inverse of its argument and
@@ -295,12 +298,12 @@ class FField:
         NOTE: If you are using fields larger than GF(2^15), you should
         make sure that f and v are longs not integers.
         """
-        
+
         result = 0
         mask = self.unity
         i = 0
         while (i <= self.n):
-            if (mask & v): 
+            if (mask & v):
                 result = result ^ f
             f = f << 1
             mask = mask << 1
@@ -329,7 +332,7 @@ class FField:
         f and v represented as a polynomials.
         This method returns the field elements a and b such that
 
-            f(x) = a(x) * v(x) + b(x).  
+            f(x) = a(x) * v(x) + b(x).
 
         That is, a is the divisor and b is the remainder, or in
         other words a is like floor(f/v) and b is like f modulo v.
@@ -361,7 +364,7 @@ class FField:
                 result.append(1)
             else:
                 result.append(0)
-            
+
         return result
 
     def ShowPolynomial(self,f):
@@ -374,7 +377,7 @@ class FField:
 
         if (f == 0):
             return '0'
-        
+
         for i in range(fDegree,0,-1):
             if ((1 << i) & f):
                 result = result + (' x^' + `i`)
@@ -405,7 +408,7 @@ class FField:
                 return self.GetRandomElement(1)
             else:
                 return result
-                    
+
 
 
     def ConvertListToElement(self,l):
@@ -419,7 +422,7 @@ class FField:
         result modulo the generator to get a proper element in the
         field.
         """
-        
+
         temp = map(lambda a, b: a << b, l, range(len(l)-1,-1,-1))
         return reduce(lambda a, b: a | b, temp)
 
@@ -441,7 +444,7 @@ class FField:
         assert (recon == a), ('TestFullDivision failed: a='
                               + `a` + ', b=' + `b` + ', c='
                               + `c` + ', d=' + `d` + ', recon=', recon)
-            
+
     def TestInverse(self):
         """
         This function tests the Inverse function by generating
@@ -453,7 +456,7 @@ class FField:
         aInv = self.Inverse(a)
         prod = self.Multiply(a,aInv)
         assert 1 == prod, ('TestInverse failed:' + 'a=' + `a` + ', aInv='
-                           + `aInv` + ', prod=' + `prod`, 
+                           + `aInv` + ', prod=' + `prod`,
                            'gen=' + `self.generator`)
 
 class LUT:
@@ -469,7 +472,7 @@ class FElement:
     +,-,*,%,//,/ operators to be the appropriate field operation.
     Note that before creating FElement objects you must first
     create an FField object.  For example,
-    
+
 >>> import ffield
 >>> F = FField(5)
 >>> e1 = FElement(F,7)
@@ -486,9 +489,9 @@ x^4 + x^2
 x^4 + x^3
 >>> e4 * e2 == (e3)
 1
-    
+
     """
-    
+
     def __init__(self,field,e):
         """
         The constructor takes two arguments, field, and e where
@@ -499,7 +502,7 @@ x^4 + x^3
         """
         self.f = e
         self.field = field
-        
+
     def __add__(self,other):
         assert self.field == other.field
         return FElement(self.field,self.field.Add(self.f,other.f))
@@ -535,7 +538,7 @@ x^4 + x^3
     def __eq__(self,other):
         assert self.field == other.field
         return self.f == other.f
-        
+
 def FullTest(testsPerField=10,sizeList=None):
     """
     This function runs TestInverse and TestFullDivision for testsPerField
@@ -544,7 +547,7 @@ def FullTest(testsPerField=10,sizeList=None):
     GF(2^7).  If sizeList == None (which is the default), then every
     field is tested.
     """
-    
+
     if (None == sizeList):
         sizeList = gPrimitivePolys.keys()
     for i in sizeList:
@@ -601,7 +604,7 @@ f(x) = x^8 + x^3 + x, modulo g(x).  We can think of g(x)
 as telling us that we can replace every occurence of
 x^7 with x + 1.  Thus f(x) becomes x * x^7 + x^3 + x which
 becomes x * (x + 1) + x^3 + x = x^3 + x^2 .  Essentially, taking
-polynomials mod x^7 by replacing all x^7 terms with x + 1 will 
+polynomials mod x^7 by replacing all x^7 terms with x + 1 will
 force down the degree of f(x) until it is below 7 (the leading power
 of g(x).  See a book on abstract algebra for more details.
 """
@@ -692,7 +695,7 @@ two (i.e. bitwise and, or, xor, etc.), this implementation uses
 such operations to make most of the computations efficient.
 
 """
-  
+
 
 license_doc = """
   This code was originally written by Emin Martinian (emin@allegro.mit.edu).
@@ -731,7 +734,7 @@ POSSIBILITY OF SUCH DAMAGES.
 testing_doc = """
 The FField class has a number of built in testing functions such as
 TestFullDivision, TestInverse.  The simplest thing to
-do is to call the FullTest method.  
+do is to call the FullTest method.
 
 >>> import ffield
 >>> ffield.FullTest(sizeList=None,testsPerField=100)

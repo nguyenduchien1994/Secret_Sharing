@@ -16,7 +16,7 @@ class SecretRecon():
         denom = self.F.Add(int(chosen.keys()[0],2),int(chosen.keys()[1],2))
         nom = self.F.Add(int(chosen.values()[0],2),int(chosen.values()[1],2))
         E = self.F.Multiply(nom,self.F.Inverse(denom))
-        return '{0:032b}'.format(E)
+        return ('{0:0'+str(self.f)+'b}').format(E)
 
     def recon_3(self,chosen):
 
@@ -29,4 +29,4 @@ class SecretRecon():
                 if y != x:
                     denom = self.F.Multiply(denom,self.F.Add(int(x,2),int(y,2)))
             E = self.F.Add(E,self.F.Multiply(nom,self.F.Inverse(denom)))
-        return '{0:032b}'.format(E)
+        return ('{0:0'+str(self.f)+'b}').format(E)

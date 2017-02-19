@@ -72,7 +72,7 @@ but I'm only testing on 2.5 - 3.2.
 
     To decode:
     >> mes, ecc = rs_correct_msg(mes + ecc, n-k, erase_pos=erase_pos)
-    
+
     If the decoding fails, it will normally automatically check and raise a ReedSolomonError exception that you can handle.
     However if you want to manually check if the repaired message is correct, you can do so:
     >> rsman.check(rmes + recc, k=k)
@@ -123,7 +123,8 @@ def rwh_primes1(n):
             sieve[i*i/2::i] = [False] * ((n-i*i-1)/(2*i)+1)
     return [2] + [2*i+1 for i in xrange(1,n/2) if sieve[i]]
 
-def find_prime_polys(generator=2, c_exp=8, fast_primes=False, single=False):
+#def find_prime_polys(generator=2, c_exp=8, fast_primes=False, single=False):
+def find_prime_polys(generator=2, c_exp=16, fast_primes=False, single=False):
     '''Compute the list of prime polynomials for the given generator and galois field characteristic exponent.'''
     # fast_primes will output less results but will be significantly faster.
     # single will output the first prime polynomial found, so if all you want is to just find one prime polynomial to generate the LUT for Reed-Solomon to work, then just use that.
@@ -170,14 +171,15 @@ def find_prime_polys(generator=2, c_exp=8, fast_primes=False, single=False):
                 seen[x] = 1
 
         # End of the second loop: if there's no conflict (no overflow nor duplicated value), this is a prime polynomial!
-        if not conflict: 
+        if not conflict:
             correct_primes.append(prim)
             if single: return prim
 
     # Return the list of all prime polynomials
     return correct_primes # you can use the following to print the hexadecimal representation of each prime polynomial: print [hex(i) for i in correct_primes]
 
-def init_tables(prim=0x11d, generator=2, c_exp=8):
+#def init_tables(prim=0x11d, generator=2, c_exp=8):
+def init_tables(prim=0x1002D, generator=2, c_exp=16):
     '''Precompute the logarithm and anti-log tables for faster computation later, using the provided primitive polynomial.
     These tables are used for multiplication/division since addition/substraction are simple XOR operations inside GF of characteristic 2.
     The basic idea is quite simple: since b**(log_b(x), log_b(y)) == x * y given any number b (the base or generator of the logarithm), then we can use any number b to precompute logarithm and anti-log (exponentiation) tables to use for multiplying two numbers x and y.
@@ -259,7 +261,7 @@ def gf_mult_noLUT_slow(x, y, prim=0):
         bits = 0
         while n >> bits: bits += 1
         return bits
- 
+
     def cl_div(dividend, divisor=None):
         '''Bitwise carry-less long division on integers and returns the remainder'''
         # Compute the position of the most significant bit for each integers
@@ -275,15 +277,15 @@ def gf_mult_noLUT_slow(x, y, prim=0):
                 # If divisible, then shift the divisor to align the most significant bits and XOR (carry-less substraction)
                 dividend ^= divisor << i
         return dividend
- 
+
     ### Main GF multiplication routine ###
- 
+
     # Multiply the gf numbers
     result = cl_mult(x,y)
     # Then do a modular reduction (ie, remainder from the division) with an irreducible primitive polynomial so that it stays inside GF bounds
     if prim > 0:
         result = cl_div(result, prim)
- 
+
     return result
 
 def gf_mult_noLUT(x, y, prim=0, field_charac_full=256, carryless=True):
@@ -494,7 +496,7 @@ def rs_correct_errata(msg_in, synd, err_pos, fcr=0, generator=2): # err_pos is a
         # Thus here this method works with erasures too because firstly we fixed the equation to be like the theoretical one (don't know why it was modified in _old_forney(), if it's an optimization, it doesn't enhance anything), and secondly because we removed the product bound on s, which prevented computing errors and erasures above the s=(n-k)//2 bound.
         y = gf_poly_eval(err_eval[::-1], Xi_inv) # numerator of the Forney algorithm (errata evaluator evaluated)
         y = gf_mul(gf_pow(Xi, 1-fcr), y) # adjust to fcr parameter
-        
+
         # Compute the magnitude
         magnitude = gf_div(y, err_loc_prime) # magnitude value of the error, calculated by the Forney algorithm (an equation in fact): dividing the errata evaluator with the errata locator derivative gives us the errata magnitude (ie, value to repair) the ith symbol
         E[err_pos[i]] = magnitude # store the magnitude for this error into the magnitude polynomial
@@ -640,7 +642,7 @@ def rs_correct_msg(msg_in, nsym, fcr=0, generator=2, erase_pos=None, only_erasur
     # check if there's any error/erasure in the input codeword. If not (all syndromes coefficients are 0), then just return the codeword as-is.
     if max(synd) == 0:
         return msg_out[:-nsym], msg_out[-nsym:]  # no errors
-    
+
     # Find errors locations
     if only_erasures:
         err_pos = []
@@ -743,7 +745,8 @@ class RSCodec(object):
     0x11d)
     '''
 
-    def __init__(self, nsym=10, nsize=255, fcr=0, prim=0x11d, generator=2, c_exp=8):
+    #def __init__(self, nsym=10, nsize=255, fcr=0, prim=0x11d, generator=2, c_exp=8):
+    def __init__(self, nsym=10, nsize=255, fcr=0, prim=0x1002D, generator=2, c_exp=16):
         '''Initialize the Reed-Solomon codec. Note that different parameters change the internal values (the ecc symbols, look-up table values, etc) but not the output result (whether your message can be repaired or not, there is no influence of the parameters).'''
         self.nsym = nsym # number of ecc symbols (ie, the repairing rate will be r=(nsym/2)/nsize, so for example if you have nsym=5 and nsize=10, you have a rate r=0.25, so you can correct up to 0.25% errors (or exactly 2 symbols out of 10), and 0.5% erasures (5 symbols out of 10).
         self.nsize = nsize # maximum length of one chunk (ie, message + ecc symbols after encoding, for the message alone it's nsize-nsym)

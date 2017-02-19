@@ -30,7 +30,7 @@ class Robust():
         int_S2 = int(bin_S2,2)
 
         int_E3 = self.F.Add(self.F.Multiply(int_S0,int_S1),self.F.Multiply(self.F.Multiply(int_S2,int_S2),int_S2))
-        bin_E3 = '{0:08b}'.format(int_E3)
+        bin_E3 = ('{0:0'+str(self.f)+'b}').format(int_E3)
 
         return bin_S0 + bin_S1 + bin_S2 + bin_E3
 
