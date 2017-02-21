@@ -113,8 +113,8 @@ def test_amd(f):
 
     F = ffield.FField(f)
     error = random.randint(1,2**(f*4)-1)
-    test_cases = 40000
-    #test_cases = 10*(2**f)
+    #test_cases = 40000
+    test_cases = 4*(2**f)
     miss = 0
 
     for i in range(0,test_cases):
