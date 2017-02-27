@@ -76,7 +76,11 @@ gPrimitivePolysCondensed = {
     39 : (39, 15, 12, 11, 10, 9, 7, 6, 5, 2 , 0),
     40 : (40, 23, 21, 18, 16, 15, 13, 12, 8, 5, 3, 1, 0),
     48 : (48, 9, 7, 4, 0),
+    60 : (60, 1, 0),
     64 : (64, 4, 3, 1, 0),
+    72 : (72, 10, 9, 3, 0),
+    80 : (80, 9, 4, 2, 0),
+    96 : (96, 10, 9, 6, 0),
     97 : (97, 6, 0),
     100 : (100, 15, 0),
     128 : (128, 7, 2, 1, 0)
@@ -190,6 +194,7 @@ class FField:
             self.Inverse = self.DoInverseForBigField
             self.Multiply = lambda a,b: self.DoMultiply(long(a),long(b))
             self.Divide = lambda a,b: self.DoDivide(long(a),long(b))
+
 
 
 

@@ -1,0 +1,22 @@
+****** Test AMD Encryption ******
+For field value = 2
+Miss Rate = 56.25%
+****** Test AMD Encryption ******
+For field value = 4
+Miss Rate = 0.0%
+****** Test AMD Encryption ******
+For field value = 8
+Miss Rate = 0.390625%
+****** Test AMD Encryption ******
+For field value = 10
+Miss Rate = 0.0732421875%
+****** Test AMD Encryption ******
+For field value = 12
+Miss Rate = 0.0244140625%
+****** Test AMD Encryption ******
+For field value = 16
+Miss Rate = 0.00114440917969%
+****** Test AMD Encryption ******
+For field value = 20
+Miss Rate = 9.53674316406e-05%
+****** Test AMD Encryption ******

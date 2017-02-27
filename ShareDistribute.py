@@ -11,8 +11,10 @@ class ShareDistribute():
     def __init__(self,f):
         self.f = f
         self.F = ffield.FField(self.f)
-        self.a0 = int("10101010101010101010101010101010",2)
-        self.a1 = int("01010101010101010101010101010101",2)
+        self.a0 = "10"*(f/2)
+        self.a1 = "01"*(f/2)
+        self.a0 = int(self.a0,2)
+        self.a1 = int(self.a1,2)
         #self.a0 = random.randint(0,2**(4*f)-1)
         #self.a1 = random.randint(0,2**(4*f)-1)
 

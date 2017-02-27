@@ -46,6 +46,29 @@ def test_M1_M2(f):
 
     print "Miss Rate = " + str(miss*100/test_cases) + "%"
 
+def original_timer(f):
+
+    print "###### Original Secret Sharing for f = " + str(f) + " ######"
+
+    format_S = '{0:0'+str(3*f)+'b}'
+
+    int_S = random.randint(0,2**(3*f)-1)
+    bin_S = format_S.format(int_S)
+
+    start = time.time()
+
+    sd = ShareDistribute(3*f)
+    shares = sd.distribute(bin_S,7)
+    #chosen = dict((key,value) for key, value in shares.iteritems() if key in (format_E.format(1),format_E.format(2),format_E.format(3))) # Python 2.6
+    chosen = {x: shares[x] for x in (format_S.format(4),format_S.format(2),format_S.format(3))} # Python 2.7
+
+    sr = SecretRecon(3*f)
+    recon_S = sr.recon_3(chosen)
+
+    end = time.time()
+
+    print "Time taken: " + str(end-start)
+
 def test_extended_AMD(f):
 
     print "###### Test Extended AMD ######"
@@ -245,13 +268,120 @@ def test_group_testing(f):
 
     return non_cheaters
 
+def new_timer(f):
+
+    print "###### Proposed Secret Sharing for f = " + str(f) + " ######"
+
+    n = 7
+    k = 3
+    t = n-k
+
+    format_S = '{0:0'+str(3*f)+'b}'
+    format_E = '{0:0'+str(4*f)+'b}'
+
+    int_S = random.randint(0,2**(3*f)-1)
+    bin_S = format_S.format(int_S)
+
+    start = time.time()
+
+    a = AMD(f)
+    E = a.encode(bin_S)
+
+    sd = ShareDistribute(4*f)
+    shares = sd.distribute(E,n)
+
+    cheaters = []
+
+    for count in range(0,t):
+        cheater = random.randint(1,n)
+        while cheater in cheaters:
+            cheater = random.randint(1,n)
+        cheaters.append(cheater)
+        cheater = format_E.format(cheater)
+        int_cheat_code = random.randint(0,2**(f*4)-1)
+        bin_cheat_code = format_E.format(int_cheat_code)
+        shares[cheater] = bin_cheat_code
+
+    #chosen = dict((key,value) for key, value in shares.iteritems() if key in (format_E.format(1),format_E.format(2),format_E.format(3))) # Python 2.6
+    chosen = {x: shares[x] for x in (format_E.format(4),format_E.format(2),format_E.format(3))} # Python 2.7
+    sr = SecretRecon(f*4)
+    E_con = sr.recon_3(chosen)
+
+    g = GroupTesting(n,k)
+    matrix = g.genMatrix()
+
+    syndrome = []
+
+    for combination in matrix:
+        chosen_idx = []
+        chosen = {}
+        for idx,holder in enumerate(combination):
+            if holder == 1:
+                chosen_idx.append(idx)
+        for idx in chosen_idx:
+            chosen[format_E.format(idx+1)] = shares[format_E.format(idx+1)]
+
+        E_con = sr.recon_3(chosen)
+
+        if a.decode(E_con):
+            syndrome.append(0)
+        else:
+            syndrome.append(1)
+
+    end = time.time()
+
+    print "Time taken: " + str(end-start)
+
+    t_matrix = g.transpose(matrix)
+    indicator = [0]*len(t_matrix)
+
+    for i in range(0,len(t_matrix)):
+        for j in range(0,len(t_matrix[i])):
+            if t_matrix[i][j] & syndrome[j] == 1:
+                indicator[i] += 1
+
+    non_cheaters = []
+    max_fails = g.nCr(n-1,k-1)
+
+    for k in range(0,len(indicator)):
+        if indicator[k] < max_fails:
+            non_cheaters.append(k+1)
+
+    return non_cheaters
+
 #test_M1_M2(8)
 #test_robust()
+
+test_amd(2)
+test_amd(4)
 test_amd(8)
 test_amd(10)
 test_amd(12)
 test_amd(16)
+test_amd(20)
+test_amd(24)
 #test_amd(32)
+
 #test_extended_AMD(8)
 #test_group_testing(8)
 #test_reedsolo()
+
+#original_timer(2)
+#original_timer(4)
+#original_timer(8)
+#original_timer(10)
+#original_timer(12)
+#original_timer(16)
+#original_timer(20)
+#original_timer(24)
+#original_timer(32)
+
+#new_timer(2)
+#new_timer(4)
+#new_timer(8)
+#new_timer(10)
+#new_timer(12)
+#new_timer(16)
+#new_timer(20)
+#new_timer(24)
+#new_timer(32)

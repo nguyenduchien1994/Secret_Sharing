@@ -1,0 +1,18 @@
+###### Original Secret Sharing for f = 2 ######
+Time taken: 0.000240087509155
+###### Original Secret Sharing for f = 4 ######
+Time taken: 0.000164985656738
+###### Original Secret Sharing for f = 8 ######
+Time taken: 0.000401020050049
+###### Original Secret Sharing for f = 10 ######
+Time taken: 0.000458955764771
+###### Original Secret Sharing for f = 12 ######
+Time taken: 0.000556945800781
+###### Original Secret Sharing for f = 16 ######
+Time taken: 0.000748872756958
+###### Original Secret Sharing for f = 20 ######
+Time taken: 0.000934839248657
+###### Original Secret Sharing for f = 24 ######
+Time taken: 0.00108194351196
+###### Original Secret Sharing for f = 32 ######
+Time taken: 0.00141000747681
