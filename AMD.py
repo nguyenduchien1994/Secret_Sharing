@@ -12,6 +12,7 @@ class AMD():
         self.f = f
         self.F = ffield.FField(self.f)
         self.R = random.randint(2,2**(self.f)-1)
+        print "The value of R is: " + str(self.R)
 
     def __truncate(self,code):
         to_return = []

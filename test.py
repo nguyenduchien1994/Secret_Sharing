@@ -178,7 +178,7 @@ def test_group_testing(f):
     format_E = '{0:0'+str(4*f)+'b}'
 
     print "****** Group Testing Test ******"
-    int_S = random.randint(0,2**24-1)
+    int_S = random.randint(0,2**(3*f)-1)
     bin_S = format_S.format(int_S)
 
     print "###### The secret is " + bin_S + " ######"
@@ -282,13 +282,19 @@ def new_timer(f):
     int_S = random.randint(0,2**(3*f)-1)
     bin_S = format_S.format(int_S)
 
+    print "Secret: " + str(bin_S)
+
     start = time.time()
 
     a = AMD(f)
     E = a.encode(bin_S)
 
+    print "Encoded secret: " + str(E)
+
     sd = ShareDistribute(4*f)
     shares = sd.distribute(E,n)
+
+    print "Shares: " + str(shares)
 
     cheaters = []
 
@@ -302,10 +308,15 @@ def new_timer(f):
         bin_cheat_code = format_E.format(int_cheat_code)
         shares[cheater] = bin_cheat_code
 
+    print "###### The cheaters are " + str(cheaters) + " ######"
+    print "Distorted shares: " + str(shares)
+
     #chosen = dict((key,value) for key, value in shares.iteritems() if key in (format_E.format(1),format_E.format(2),format_E.format(3))) # Python 2.6
     chosen = {x: shares[x] for x in (format_E.format(4),format_E.format(2),format_E.format(3))} # Python 2.7
     sr = SecretRecon(f*4)
     E_con = sr.recon_3(chosen)
+
+    print "Reconstructed secret: " + str(E_con)
 
     g = GroupTesting(n,k)
     matrix = g.genMatrix()
@@ -330,7 +341,7 @@ def new_timer(f):
 
     end = time.time()
 
-    print "Time taken: " + str(end-start)
+    #print "Time taken: " + str(end-start)
 
     t_matrix = g.transpose(matrix)
     indicator = [0]*len(t_matrix)
@@ -347,19 +358,21 @@ def new_timer(f):
         if indicator[k] < max_fails:
             non_cheaters.append(k+1)
 
+    print "The non-cheaters are: " + str(non_cheaters)
+
     return non_cheaters
 
 #test_M1_M2(8)
 #test_robust()
 
-test_amd(2)
-test_amd(4)
-test_amd(8)
-test_amd(10)
-test_amd(12)
-test_amd(16)
-test_amd(20)
-test_amd(24)
+#test_amd(2)
+#test_amd(4)
+#test_amd(8)
+#test_amd(10)
+#test_amd(12)
+#test_amd(16)
+#test_amd(20)
+#test_amd(24)
 #test_amd(32)
 
 #test_extended_AMD(8)
@@ -377,7 +390,7 @@ test_amd(24)
 #original_timer(32)
 
 #new_timer(2)
-#new_timer(4)
+new_timer(4)
 #new_timer(8)
 #new_timer(10)
 #new_timer(12)
