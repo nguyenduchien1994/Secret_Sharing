@@ -11,7 +11,7 @@ class ShareDistribute_collude():
     def __init__(self,f):
         self.f = f
         self.F = ffield.FField(self.f)
-        self.a0 = "1011101110111100"
+        self.a0 = "1011101110111011"
         self.a1 = "0111011101110111"
         self.E = "1010101111001101"
         self.a0 = int(self.a0,2)
